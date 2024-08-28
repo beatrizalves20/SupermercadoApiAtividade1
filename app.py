@@ -11,13 +11,15 @@ data = {
 }
 
 # Função para gerar novos IDs
-def get_new_id(endpoint):
-    if data[endpoint]:
-        return max(item['id'] for item in data[endpoint]) + 1
+def getNextID(lista):
+    if data[lista]:
+        return max(item['id'] for item in data[lista]) + 1
     return 1
 
-# Função para listar ou adicionar itens
-def handle_endpoint(endpoint):
+@api.
+
+# Função para listar ou adicionar iten
+def handle_endpoint(lista):
     if request.method == 'POST':
         new_item = request.json
         new_item['id'] = get_new_id(endpoint)
