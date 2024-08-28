@@ -1,52 +1,112 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 
-app = Flask(__name__)
+api = Flask(__name__)
 
-# Dados em memória (variáveis voláteis)
-data = {
-    "produtos": [],
-    "usuarios": [],
-    "setores": [],
-    "categorias": []
-}
+produtos = []
+usuarios = []
+setores = []
+categorias = []
 
-# Função para gerar novos IDs
-def getNextID(lista):
-    if data[lista]:
-        return max(item['id'] for item in data[lista]) + 1
+
+def getID(data):
+    if data:
+        return max(item['id'] for item in data) + 1
     return 1
 
-@api.
+@api.route("/")
+def index():
+    return ({'version': '1.0.0'}, 200)
 
-# Função para listar ou adicionar iten
-def handle_endpoint(lista):
-    if request.method == 'POST':
-        new_item = request.json
-        new_item['id'] = get_new_id(endpoint)
-        data[endpoint].append(new_item)
-        return jsonify(new_item), 201
+
+@api.route('/categorias/<int:id>', methods=['GET'])
+def getCategoriaByID(id:int):
+    categoria = next((c for c in categorias if c['id'] == id), None)
+    if categoria:
+        return (categoria)
     
-    return jsonify(data[endpoint])
+    return ({'message': 'Categoria não encontrada'}), 404
+    
+@api.route('/categorias', methods=['GET', 'POST'])
+def categoriasHandle():
+    if request.method == 'POST':
+        json = request.get_json()
+    
+        jsonCategoria ={
+           'id': getID(categorias),
+           'nome': json['nome']                
+        }
+               
+        return (jsonCategoria), 201
+    
+    elif request.method == 'GET':
+        
+        return (categorias, 200)
 
-# Função para obter item específico por ID
-def get_item(endpoint, item_id):
-    item = next((i for i in data[endpoint] if i['id'] == item_id), None)
-    if item:
-        return jsonify(item)
-    return jsonify({'message': f'{endpoint[:-1].capitalize()} não encontrado'}), 404
+@api.route('/produtos', methods=['GET', 'POST'])
+def produtosHandle():
+    if request.method == 'POST':
+        json = request.get_json()
+        
+        jsonProduto ={
+            'id': getID(produtos),
+           'nome': json['nome']                
+        }
+               
+        return ( jsonProduto), 201
+    
+    elif request.method == 'GET':
+        
+        return (produtos, 200)
+ 
+def getProdutoByID(id:int):
+    produto = next((i for i in produtos if i['id'] == id), None)
+    if produto:
+        return (produto)
+    return ({'error': 'não encontrado'}, 404)
 
-# Rotas para os endpoints
-@app.route('/<endpoint>', methods=['GET', 'POST'])
-def handle_items(endpoint):
-    if endpoint not in data:
-        return jsonify({'message': 'Endpoint inválido'}), 404
-    return handle_endpoint(endpoint)
+@api.route('/usuarios', methods=['GET', 'POST'])
+def usuariosHandle():
+    if request.method == 'POST':
+        json = request.get_json()
+        
+        jsonUsuarios ={
+            'id': getID(usuarios),
+           'nome': json['nome']                
+        }
+               
+        return ( jsonUsuarios), 201
+    
+    elif request.method == 'GET':
+        
+        return (usuarios, 200)
 
-@app.route('/<endpoint>/<int:item_id>', methods=['GET'])
-def handle_item(endpoint, item_id):
-    if endpoint not in data:
-        return jsonify({'message': 'Endpoint inválido'}), 404
-    return get_item(endpoint, item_id)
+def getUsuarioByID(id:int):
+    usuario = next((i for i in usuarios if i['id'] == id), None)
+    if usuario:
+        return (usuario)
+    return ({'error': 'Usuario não encontrado'}, 404)
 
+@api.route('/setores', methods=['GET', 'POST'])
+def setoresHandle():
+    if request.method == 'POST':
+        json = request.get_json()
+        
+        jsonSetores ={
+            'id': getID(setores),
+           'nome': json['nome']                
+        }
+               
+        return (jsonSetores), 201
+    
+    elif request.method == 'GET':
+        
+        return (setores, 200)
+    
+def getsetorByID(id:int):
+    setor = next((i for i in setores if i['id'] == id), None)
+    if setor:
+        return (setor)
+    return ({'error': 'Setor não encontrado'}, 404) 
+   
 if __name__ == '__main__':
-    app.run(debug=True)
+    api.run(debug=True)
